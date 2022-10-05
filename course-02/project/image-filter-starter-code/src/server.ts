@@ -1,6 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import isImageURL from 'image-url-validator';
+
 
 (async () => {
 
@@ -27,10 +29,45 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // RETURNS
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
+  // GOOD WORKS!!
+  // app.get('/filteredimage/', async (req, res) => {
+  //   let imageURL = req.query.image_url
+  //   // res.send(imageURL);
+  //   const isImageURL = require('image-url-validator').default;
+  //   const isValidImageURL = await isImageURL(imageURL);
+  //   if (isValidImageURL) {
+  //     const filteredpath = await filterImageFromURL(imageURL)
+  //     res.sendFile(filteredpath);
+  //     if (res.status(200)) {
+  //       console.log("all good man!");
+  //     }
+  //     // deleteLocalFiles([filteredpath]);
+  //   } else {
+  //     res.send("not a valid image path!");
+  //   }
+  // });
+
+  //I DID IT!!
+  app.get('/filteredimage/', async (req, res) => {
+    let imageURL = req.query.image_url
+    // res.send(imageURL);
+    const isImageURL = require('image-url-validator').default;
+    const isValidImageURL = await isImageURL(imageURL);
+    if (isValidImageURL) {
+      const filteredpath = await filterImageFromURL(imageURL)
+      res.sendFile(filteredpath);
+      console.log(filteredpath);
+      res.on('finish', function(){
+        deleteLocalFiles([filteredpath]);
+      })
+    } else {
+      res.send("not a valid image path!");
+    }
+  });
   /**************************************************************************** */
 
   //! END @TODO1
-  
+ 
   // Root Endpoint
   // Displays a simple message to the user
   app.get( "/", async ( req, res ) => {
