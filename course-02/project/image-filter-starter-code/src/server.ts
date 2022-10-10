@@ -49,19 +49,19 @@ import isImageURL from 'image-url-validator';
 
   //I DID IT!!
   app.get('/filteredimage/', async (req, res) => {
-    let imageURL = req.query.image_url
+    let imageURL:string = req.query.image_url;
     // res.send(imageURL);
     const isImageURL = require('image-url-validator').default;
     const isValidImageURL = await isImageURL(imageURL);
     if (isValidImageURL) {
       const filteredpath = await filterImageFromURL(imageURL)
-      res.sendFile(filteredpath);
+      res.status(200).sendFile(filteredpath);
       console.log(filteredpath);
       res.on('finish', function(){
         deleteLocalFiles([filteredpath]);
       })
     } else {
-      res.send("not a valid image path!");
+      res.status(400).send({ message: 'Not a valid image path!' });
     }
   });
   /**************************************************************************** */
